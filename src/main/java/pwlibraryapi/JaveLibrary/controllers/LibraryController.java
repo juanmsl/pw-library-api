@@ -10,6 +10,7 @@ import pwlibraryapi.JaveLibrary.models.LibroDao;
 import pwlibraryapi.JaveLibrary.models.UsuarioDao;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Collection;
 
 @RestController
 public class LibraryController {
@@ -82,6 +83,16 @@ public class LibraryController {
     public Autor getAutor(@PathVariable Integer id){
         Autor autor = autorDao.findById(id).orElseThrow(()-> new EntityNotFoundException());
         return autor;
+    }
+
+    @GetMapping(value = "/usuarios")
+    public Collection<Usuario> getUsuarios(){
+        return (Collection<Usuario>) usuarioDao.findAll();
+    }
+
+    @GetMapping(value = "/libros")
+    public Collection<Libro> getLibros(){
+        return (Collection<Libro>) libroDao.findAll();
     }
 
 }
