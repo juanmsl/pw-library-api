@@ -3,10 +3,15 @@ package pwlibraryapi.JaveLibrary.entities;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Vector;
 
 @Entity
 @Table(name="autor")
-public class Autor {
+public class Autor implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -14,6 +19,8 @@ public class Autor {
 
     @NotNull
     private String nombre;
+
+    private ArrayList libros = new ArrayList();
 
     public Autor(){}
 
@@ -35,6 +42,15 @@ public class Autor {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    @ManyToMany(mappedBy = "autores")
+    public ArrayList<Libro> getLibros() {
+        return libros;
+    }
+
+    public void setLibros(ArrayList<Libro> libros) {
+        this.libros = libros;
     }
 }
 

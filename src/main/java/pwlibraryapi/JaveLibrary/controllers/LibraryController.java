@@ -10,8 +10,9 @@ import pwlibraryapi.JaveLibrary.models.LibroDao;
 import pwlibraryapi.JaveLibrary.models.UsuarioDao;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.Collection;
+import java.util.*;
 
+@CrossOrigin(allowedHeaders = {"http://192.168.0.10","http://192.168.0.14"})
 @RestController
 public class LibraryController {
 
@@ -32,7 +33,10 @@ public class LibraryController {
     @PostMapping(value = "/libro")
     public Libro createLibro(@RequestBody Libro libro){
         Libro libroToCreate = new LibroController().createLibro(libro);
-        libroDao.save(libroToCreate);
+        Autor autorToCreate;
+        ArrayList<Libro> librosAutor = new ArrayList<>();
+        librosAutor.add(libroToCreate);
+
         return libroToCreate;
     }
 

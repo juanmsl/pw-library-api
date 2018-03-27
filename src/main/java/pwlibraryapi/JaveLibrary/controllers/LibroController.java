@@ -9,6 +9,7 @@ public class LibroController {
         libro.setNombre(libroToCreate.getNombre());
         libro.setIsbn(libroToCreate.getIsbn());
         libro.setDisponible(libroToCreate.getDisponible());
+        libro.setAutores(libroToCreate.getAutores());
 
         return libro;
     }
