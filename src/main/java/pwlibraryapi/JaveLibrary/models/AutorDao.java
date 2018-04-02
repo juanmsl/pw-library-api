@@ -8,6 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import javax.transaction.Transactional;
 
 @Transactional
-public interface AutorDao extends JpaRepository<Autor, Integer> {
+public interface AutorDao extends CrudRepository<Autor, Integer> {
+    Autor findByNombre(String nombre);
 
 }

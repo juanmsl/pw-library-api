@@ -1,13 +1,10 @@
 package pwlibraryapi.JaveLibrary.controllers;
 
+import org.omg.PortableServer.LIFESPAN_POLICY_ID;
 import org.springframework.web.bind.annotation.*;
-import pwlibraryapi.JaveLibrary.entities.Libro;
-import pwlibraryapi.JaveLibrary.entities.Usuario;
-import pwlibraryapi.JaveLibrary.models.AutorDao;
-import pwlibraryapi.JaveLibrary.entities.Autor;
+import pwlibraryapi.JaveLibrary.entities.*;
+import pwlibraryapi.JaveLibrary.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import pwlibraryapi.JaveLibrary.models.LibroDao;
-import pwlibraryapi.JaveLibrary.models.UsuarioDao;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
@@ -25,6 +22,12 @@ public class LibraryController {
     @Autowired
     private LibroDao libroDao;
 
+    @Autowired
+    private PrestamoDao prestamoDao;
+
+    @Autowired
+    private LibroPrestamoDao libroPrestamoDao;
+
     @GetMapping(value = "/libro/{id}")
     public Libro getLibro(@PathVariable Integer id){
         return libroDao.findById(id).orElseThrow(()-> new EntityNotFoundException());
@@ -32,10 +35,11 @@ public class LibraryController {
 
     @PostMapping(value = "/libro")
     public Libro createLibro(@RequestBody Libro libro){
-        Libro libroToCreate = new LibroController().createLibro(libro);
-        Autor autorToCreate;
-        ArrayList<Libro> librosAutor = new ArrayList<>();
-        librosAutor.add(libroToCreate);
+        AutorController autorController = new AutorController();
+        LibroController libroController = new LibroController();
+        List<Autor> autores = autorController.createAutors(libro.getAutores(), autorDao);
+        Libro libroToCreate = libroController.createLibro(libro, autores);
+        libroDao.save(libroToCreate);
 
         return libroToCreate;
     }
@@ -69,7 +73,12 @@ public class LibraryController {
 
     @PutMapping(value = "/usuario")
     public Usuario updateUsuario(@RequestBody Usuario usuario){
-        Usuario userToUpdate = usuarioDao.findById(usuario.getId()).orElseThrow(()-> new EntityNotFoundException());
+        Usuario userToUpdate = usuarioDao.findById(usuario.getId()).orElseGet(()->{
+            Usuario usuarioTemporal = new Usuario();
+            usuarioTemporal.setMessage("No se pudo actualizar la info del usuario con id: " +  usuario.getId()
+            + "ya que el usuario no existe");
+            return usuarioTemporal;
+        });
         UsuarioController usuarioController = new UsuarioController();
         usuarioController.updateUsuario(usuario, userToUpdate);
         usuarioDao.save(userToUpdate);
@@ -84,8 +93,8 @@ public class LibraryController {
 
 
     @GetMapping(value = "/autor/{id}")
-    public Autor getAutor(@PathVariable Integer id){
-        Autor autor = autorDao.findById(id).orElseThrow(()-> new EntityNotFoundException());
+    public Optional<Autor> getAutor(@PathVariable Integer id){
+        Optional<Autor> autor = autorDao.findById(id);
         return autor;
     }
 
@@ -99,4 +108,47 @@ public class LibraryController {
         return (Collection<Libro>) libroDao.findAll();
     }
 
+    @GetMapping(value = "/autores")
+    public Collection<Autor> getAutores(){
+        return (Collection<Autor>) autorDao.findAll();
+    }
+
+    @GetMapping(value = "/prestamo/{id}")
+    public Optional<Prestamo> getPrestamo(@PathVariable Integer id){
+        Optional<Prestamo> prestamo = prestamoDao.findById(id);
+        return prestamo;
+    }
+
+    @PostMapping(value = "/prestamo")
+    public Prestamo createPrestamo(@RequestBody Prestamo prestamo){
+        PrestamoController prestamoController = new PrestamoController();
+        LibroController libroController = new LibroController();
+        LibroPrestamoController libroPrestamoController = new LibroPrestamoController();
+        Prestamo prestamoToCreate = prestamoController.createPrestamo(prestamo);
+        List<Libro> librosPrestamo = libroController.librosPrestamo(prestamo,libroDao);
+        prestamoToCreate.setLibrosPrestamo(librosPrestamo);
+        libroPrestamoController.createPrestamo(librosPrestamo, prestamoToCreate, libroPrestamoDao);
+        return prestamoToCreate;
+    }
+
+    @PutMapping(value = "/prestamo")
+    public LibroPrestamo updatePrestamo (@RequestBody LibroDevolucion libroDevolucion){
+        LibroPrestamoController libroPrestamoController = new LibroPrestamoController();
+        LibroPrestamo libroPrestamo = libroPrestamoDao.findByLibro_IdAndPrestamo_Responsable(libroDevolucion.getLibroId(), libroDevolucion.getResponsable());
+        libroPrestamoController.updateDevolucion(libroPrestamo);
+        Libro libro = libroDao.findById(libroDevolucion.getLibroId()).orElse(null);
+        if(libro!=null){
+            libro.setDisponible(true);
+            libroDao.save(libro);
+        }
+        libroPrestamoDao.save(libroPrestamo);
+        return libroPrestamo;
+    }
+
+    @GetMapping(value = "/historial/{id}")
+    public List<LibroPrestamo> getHistorialPrestamo (@PathVariable Integer id){
+        PrestamoController prestamoController = new PrestamoController();
+        List<LibroPrestamo> libroPrestamos = libroPrestamoDao.findAllByLibro_Id(id);
+        return libroPrestamos;
+    }
 }

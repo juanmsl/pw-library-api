@@ -1,17 +1,21 @@
 package pwlibraryapi.JaveLibrary.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 @Entity
 @Table(name="autor")
-public class Autor implements Serializable{
+public class Autor {
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "autores")
+    private List<Libro> libros;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,7 +24,8 @@ public class Autor implements Serializable{
     @NotNull
     private String nombre;
 
-    private ArrayList libros = new ArrayList();
+    @Transient
+    private String message;
 
     public Autor(){}
 
@@ -29,6 +34,11 @@ public class Autor implements Serializable{
     }
 
     public Autor(@NotNull String nombre) {
+        this.nombre = nombre;
+    }
+
+    public Autor(ArrayList<Libro> libros, @NotNull String nombre) {
+        this.libros = libros;
         this.nombre = nombre;
     }
 
@@ -44,13 +54,21 @@ public class Autor implements Serializable{
         this.nombre = nombre;
     }
 
-    @ManyToMany(mappedBy = "autores")
-    public ArrayList<Libro> getLibros() {
+
+    public List<Libro> getLibros() {
         return libros;
     }
 
-    public void setLibros(ArrayList<Libro> libros) {
+    public void setLibros(List<Libro> libros) {
         this.libros = libros;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
 

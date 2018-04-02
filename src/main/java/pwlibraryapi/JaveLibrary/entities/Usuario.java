@@ -27,6 +27,9 @@ public class Usuario {
     @NotNull
     private String documento;
 
+    @Transient
+    private String message;
+
     public Usuario(int id){
         this.id = id;
     }
@@ -87,5 +90,13 @@ public class Usuario {
 
     public void setDocumento(String documento) {
         this.documento = documento;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

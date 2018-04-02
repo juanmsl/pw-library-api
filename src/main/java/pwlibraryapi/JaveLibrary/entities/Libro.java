@@ -1,16 +1,19 @@
 package pwlibraryapi.JaveLibrary.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Vector;
+import java.util.List;
 
 @Entity
 @Table(name = "libro")
-public class Libro implements  Serializable{
+public class Libro{
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "libroautor", joinColumns = @JoinColumn(name = "libro_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "autor_id", referencedColumnName = "id"))
+    private List<Autor> autores;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,7 +28,12 @@ public class Libro implements  Serializable{
     @NotNull
     private Boolean disponible;
 
-    ArrayList<Autor> autores = new ArrayList<>();
+    @Transient
+    private String message;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "libro")
+    private List<LibroPrestamo> prestamos;
 
 
     public Libro(int id){
@@ -33,6 +41,13 @@ public class Libro implements  Serializable{
     }
 
     public Libro (){}
+
+    public Libro(List<Autor> autores, @NotNull String nombre, @NotNull String isbn, @NotNull Boolean disponible) {
+        this.autores = autores;
+        this.nombre = nombre;
+        this.isbn = isbn;
+        this.disponible = disponible;
+    }
 
     public Libro(@NotNull String nombre, @NotNull String isbn, @NotNull Boolean disponible) {
         this.nombre = nombre;
@@ -64,22 +79,36 @@ public class Libro implements  Serializable{
         this.isbn = isbn;
     }
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "libroautor", joinColumns = @JoinColumn(name = "libro_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "autor_id", referencedColumnName = "id"))
-    public ArrayList<Autor> getAutores() {
-        return autores;
-    }
-
-
-    public void setAutores(ArrayList<Autor> autores) {
-        this.autores = autores;
-    }
-
     public Boolean getDisponible() {
         return disponible;
     }
 
     public void setDisponible(Boolean disponible) {
         this.disponible = disponible;
+    }
+
+
+    public List<Autor> getAutores() {
+        return autores;
+    }
+
+    public void setAutores(List<Autor> autores) {
+        this.autores = autores;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public List<LibroPrestamo> getPrestamos() {
+        return prestamos;
+    }
+
+    public void setPrestamos(List<LibroPrestamo> prestamos) {
+        this.prestamos = prestamos;
     }
 }
