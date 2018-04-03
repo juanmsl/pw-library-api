@@ -1,15 +1,13 @@
 package pwlibraryapi.JaveLibrary.controllers;
 
-import org.omg.PortableServer.LIFESPAN_POLICY_ID;
 import org.springframework.web.bind.annotation.*;
 import pwlibraryapi.JaveLibrary.entities.*;
 import pwlibraryapi.JaveLibrary.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
-@CrossOrigin(allowedHeaders = {"http://192.168.0.10","http://192.168.0.14"})
+@CrossOrigin
 @RestController
 public class LibraryController {
 
@@ -30,7 +28,13 @@ public class LibraryController {
 
     @GetMapping(value = "/libro/{id}")
     public Libro getLibro(@PathVariable Integer id){
-        return libroDao.findById(id).orElseThrow(()-> new EntityNotFoundException());
+        Libro libro = libroDao.findById(id).orElseGet(()->{
+            Libro libroTemporal = new Libro();
+            libroTemporal.setStatus("404");
+            return libroTemporal;
+        });
+        libro.setStatus("200");
+        return libro;
     }
 
     @PostMapping(value = "/libro")
@@ -46,28 +50,44 @@ public class LibraryController {
 
     @PutMapping(value = "/libro")
     public Libro updateLibro(@RequestBody Libro libro){
-        Libro libroToUpdate = libroDao.findById(libro.getId()).orElseThrow(()-> new EntityNotFoundException());
+        Libro libroToUpdate = libroDao.findById(libro.getId()).orElseGet(()->{
+            Libro libroTemporal = new Libro();
+            libroTemporal.setStatus("404");
+            return libroTemporal;
+        });
         LibroController libroController = new LibroController();
         libroController.updateLibro(libro, libroToUpdate);
         libroDao.save(libroToUpdate);
+        libroToUpdate.setStatus("200");
         return libroToUpdate;
     }
 
     @DeleteMapping(value = "/libro")
-    public String deleteLibro(@RequestBody Libro libro){
+    public Libro deleteLibro(@RequestBody Libro libro){
+
         libroDao.deleteById(libro.getId());
-        return "Libro eliminado";
+        libro.setStatus("200");
+        return libro;
     }
 
     @GetMapping(value = "/usuario/{id}")
     public Usuario getUsuario(@PathVariable Integer id){
-        return usuarioDao.findById(id).orElseThrow(()-> new EntityNotFoundException());
+        Usuario usuario = usuarioDao.findById(id).orElseGet(()-> {
+            Usuario usuarioTemporal = new Usuario();
+            usuarioTemporal.setStatus("404");
+            return usuarioTemporal;
+        });
+        usuario.setStatus("200");
+        return usuario;
     }
 
-    @PostMapping(value = "/usuario")
-    public Usuario createUsuario(@RequestBody Usuario usuario){
-        Usuario user = new UsuarioController().createUsuario(usuario);
-        usuarioDao.save(user);
+    @PostMapping(value = "/login")
+    public Usuario loginUsuario (@RequestBody Usuario usuario){
+        return new UsuarioController().validarUsuario(usuario, usuarioDao);
+    }
+    @PostMapping(value = "/registro")
+    public Usuario registrarUsuario(@RequestBody Usuario usuario){
+        Usuario user = new UsuarioController().createUsuario(usuario, usuarioDao);
         return user;
     }
 
@@ -75,26 +95,32 @@ public class LibraryController {
     public Usuario updateUsuario(@RequestBody Usuario usuario){
         Usuario userToUpdate = usuarioDao.findById(usuario.getId()).orElseGet(()->{
             Usuario usuarioTemporal = new Usuario();
-            usuarioTemporal.setMessage("No se pudo actualizar la info del usuario con id: " +  usuario.getId()
-            + "ya que el usuario no existe");
+            usuarioTemporal.setStatus("404");
             return usuarioTemporal;
         });
         UsuarioController usuarioController = new UsuarioController();
         usuarioController.updateUsuario(usuario, userToUpdate);
         usuarioDao.save(userToUpdate);
+        userToUpdate.setStatus("200");
         return userToUpdate;
     }
 
     @DeleteMapping(value = "/usuario")
-    public String deleteUsuario(@RequestBody Usuario usuario){
+    public Usuario deleteUsuario(@RequestBody Usuario usuario){
         usuarioDao.deleteById(usuario.getId());
-        return "Usuario eliminado";
+        usuario.setStatus("200");
+        return usuario;
     }
 
 
     @GetMapping(value = "/autor/{id}")
-    public Optional<Autor> getAutor(@PathVariable Integer id){
-        Optional<Autor> autor = autorDao.findById(id);
+    public Autor getAutor(@PathVariable Integer id){
+        Autor autor = autorDao.findById(id).orElseGet(()->{
+            Autor autorTemporal =new Autor();
+            autorTemporal.setStatus("404");
+            return autorTemporal;
+        });
+        autor.setStatus("200");
         return autor;
     }
 
@@ -114,8 +140,13 @@ public class LibraryController {
     }
 
     @GetMapping(value = "/prestamo/{id}")
-    public Optional<Prestamo> getPrestamo(@PathVariable Integer id){
-        Optional<Prestamo> prestamo = prestamoDao.findById(id);
+    public Prestamo getPrestamo(@PathVariable Integer id){
+        Prestamo prestamo = prestamoDao.findById(id).orElseGet(()->{
+            Prestamo prestamoTemporal = new Prestamo();
+            prestamoTemporal.setStatus("404");
+            return prestamoTemporal;
+        });
+        prestamo.setStatus("200");
         return prestamo;
     }
 
@@ -128,26 +159,30 @@ public class LibraryController {
         List<Libro> librosPrestamo = libroController.librosPrestamo(prestamo,libroDao);
         prestamoToCreate.setLibrosPrestamo(librosPrestamo);
         libroPrestamoController.createPrestamo(librosPrestamo, prestamoToCreate, libroPrestamoDao);
+        prestamoToCreate.setStatus("200");
         return prestamoToCreate;
     }
 
     @PutMapping(value = "/prestamo")
     public LibroPrestamo updatePrestamo (@RequestBody LibroDevolucion libroDevolucion){
         LibroPrestamoController libroPrestamoController = new LibroPrestamoController();
-        LibroPrestamo libroPrestamo = libroPrestamoDao.findByLibro_IdAndPrestamo_Responsable(libroDevolucion.getLibroId(), libroDevolucion.getResponsable());
-        libroPrestamoController.updateDevolucion(libroPrestamo);
         Libro libro = libroDao.findById(libroDevolucion.getLibroId()).orElse(null);
-        if(libro!=null){
-            libro.setDisponible(true);
-            libroDao.save(libro);
+        LibroPrestamo libroPrestamoUpdate = new LibroPrestamo();
+        if(libro == null){
+            LibroPrestamo libroPrestamoTemporal = new LibroPrestamo();
+            libroPrestamoTemporal.setStatus("404");
+            return libroPrestamoTemporal;
+        }else if(!libro.getDisponible()){
+            List<LibroPrestamo> libroPrestamo = libroPrestamoDao.findAllByLibro_IdAndPrestamo_Responsable(libroDevolucion.getLibroId(), libroDevolucion.getResponsable());
+            libroPrestamoUpdate =libroPrestamoController.updateDevolucion(libroPrestamo,libroPrestamoDao, libro, libroDao);
+            return libroPrestamoUpdate;
         }
-        libroPrestamoDao.save(libroPrestamo);
-        return libroPrestamo;
+        libroPrestamoUpdate.setStatus("406");
+        return libroPrestamoUpdate;
     }
 
     @GetMapping(value = "/historial/{id}")
     public List<LibroPrestamo> getHistorialPrestamo (@PathVariable Integer id){
-        PrestamoController prestamoController = new PrestamoController();
         List<LibroPrestamo> libroPrestamos = libroPrestamoDao.findAllByLibro_Id(id);
         return libroPrestamos;
     }

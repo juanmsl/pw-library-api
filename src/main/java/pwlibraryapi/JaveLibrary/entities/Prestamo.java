@@ -33,6 +33,9 @@ public class Prestamo {
     @Transient
     private List<Libro> librosPrestamo;
 
+    @Transient
+    private String status;
+
     public Prestamo(int id){
         this.id = id;
     }
@@ -91,5 +94,13 @@ public class Prestamo {
 
     public void setLibrosPrestamo(List<Libro> librosPrestamo) {
         this.librosPrestamo = librosPrestamo;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

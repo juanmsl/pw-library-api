@@ -25,7 +25,7 @@ public class Autor {
     private String nombre;
 
     @Transient
-    private String message;
+    private String status;
 
     public Autor(){}
 
@@ -63,12 +63,12 @@ public class Autor {
         this.libros = libros;
     }
 
-    public String getMessage() {
-        return message;
+    public String getStatus() {
+        return status;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
 

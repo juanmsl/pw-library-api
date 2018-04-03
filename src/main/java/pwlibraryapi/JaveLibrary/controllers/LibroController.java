@@ -14,8 +14,9 @@ public class LibroController {
         Libro libro = new Libro();
         libro.setNombre(libroToCreate.getNombre());
         libro.setIsbn(libroToCreate.getIsbn());
-        libro.setDisponible(libroToCreate.getDisponible());
+        libro.setDisponible(true);
         libro.setAutores(autores);
+        libro.setStatus("200");
         return libro;
     }
 
@@ -23,6 +24,7 @@ public class LibroController {
         libroToUpdate.setNombre(libro.getNombre());
         libroToUpdate.setIsbn(libro.getIsbn());
         libroToUpdate.setDisponible(libro.getDisponible());
+        libroToUpdate.setAutores(libro.getAutores());
     }
 
     public List<Libro> librosPrestamo (Prestamo prestamo, LibroDao libroDao){

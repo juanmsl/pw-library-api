@@ -27,8 +27,11 @@ public class Usuario {
     @NotNull
     private String documento;
 
+    @NotNull
+    private String password;
+
     @Transient
-    private String message;
+    private String status;
 
     public Usuario(int id){
         this.id = id;
@@ -36,12 +39,14 @@ public class Usuario {
 
     public Usuario() {}
 
-    public Usuario(@NotNull String usuario, @NotNull String nombres, @NotNull String apellidos, @NotNull String tipo, @NotNull String documento) {
+    public Usuario(@NotNull String usuario, @NotNull String nombres, @NotNull String apellidos, @NotNull String tipo, @NotNull String documento, @NotNull String password, String status) {
         this.usuario = usuario;
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.tipo = tipo;
         this.documento = documento;
+        this.password = password;
+        this.status = status;
     }
 
     public int getId() {
@@ -92,11 +97,19 @@ public class Usuario {
         this.documento = documento;
     }
 
-    public String getMessage() {
-        return message;
+    public String getStatus() {
+        return status;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

@@ -21,6 +21,9 @@ public class LibroPrestamo {
 
     private Date fechadevolucion;
 
+    @Transient
+    private String status;
+
     public LibroPrestamo (){
 
     }
@@ -55,5 +58,13 @@ public class LibroPrestamo {
 
     public void setFechadevolucion(Date fechadevolucion) {
         this.fechadevolucion = fechadevolucion;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

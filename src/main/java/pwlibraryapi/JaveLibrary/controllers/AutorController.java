@@ -5,9 +5,7 @@ import pwlibraryapi.JaveLibrary.entities.Libro;
 import pwlibraryapi.JaveLibrary.models.AutorDao;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class AutorController {
 
@@ -29,6 +27,8 @@ public class AutorController {
         }
         return autores;
     }
+
+
 
 
 

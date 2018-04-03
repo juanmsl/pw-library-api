@@ -1,6 +1,7 @@
 package pwlibraryapi.JaveLibrary.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -9,6 +10,7 @@ import java.util.List;
 @Entity
 @Table(name = "libro")
 public class Libro{
+
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "libroautor", joinColumns = @JoinColumn(name = "libro_id", referencedColumnName = "id"),
@@ -29,7 +31,7 @@ public class Libro{
     private Boolean disponible;
 
     @Transient
-    private String message;
+    private String status;
 
     @JsonIgnore
     @OneToMany(mappedBy = "libro")
@@ -96,12 +98,12 @@ public class Libro{
         this.autores = autores;
     }
 
-    public String getMessage() {
-        return message;
+    public String getStatus() {
+        return status;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public List<LibroPrestamo> getPrestamos() {
