@@ -7,4 +7,5 @@ import javax.transaction.Transactional;
 
 @Transactional
 public interface UsuarioDao extends CrudRepository<Usuario, Integer> {
+    Usuario findByUsuario (String usuario);
 }

@@ -7,4 +7,5 @@ import javax.transaction.Transactional;
 
 @Transactional
 public interface LibroDao extends CrudRepository<Libro, Integer> {
+
 }
